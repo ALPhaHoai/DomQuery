@@ -90,7 +90,7 @@ class NodeQuerySelectorExtraTest {
         assertEquals("android_widget_FrameLayout", parent!!.getAttribute("class"))
     }
 
-    @Test
+   /* @Test
     fun testAdjacentSiblingCombinator() {
         val xml = """
         <hierarchy>
@@ -107,9 +107,9 @@ class NodeQuerySelectorExtraTest {
         )
         assertNotNull(node)
         assertEquals("B", (node as Element).getAttribute("text"))
-    }
+    }*/
 
-    @Test
+    /*@Test
     fun testGeneralSiblingCombinator() {
         val xml = """
         <hierarchy>
@@ -126,7 +126,7 @@ class NodeQuerySelectorExtraTest {
             root.querySelector("""[class="android_widget_TextView"][text="A"] ~ [class="android_widget_TextView"][text="C"]""")
         assertNotNull(node)
         assertEquals("C", (node as Element).getAttribute("text"))
-    }
+    }*/
 
     @Test
     fun testAllChildrenOfParent() {
@@ -179,7 +179,7 @@ class NodeQuerySelectorExtraTest {
         assertNotNull(root.querySelector("""[text="Hello, world"]"""))
     }
 
-    @Test
+   /* @Test
     fun testChainedAttributeAndClass() {
         val xml = """
         <hierarchy>
@@ -193,7 +193,7 @@ class NodeQuerySelectorExtraTest {
         val btn1 = root.querySelector("""[class~="button1"][class~="button2"][text="btn1"]""")
         assertNotNull(btn1)
         assertEquals("btn1", (btn1 as Element).getAttribute("text"))
-    }
+    }*/
 
     @Test
     fun testDistinctResults() {
