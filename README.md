@@ -1,5 +1,3 @@
----
-
 # DomQuery: XPath & CSS-Style Selectors for XML in Kotlin
 
 **DomQuery** (`org.domquery`) provides lightweight, CSS-style selector querying and utilities for DOM-style (XML/HTML) documents in Kotlin/JVM.  
