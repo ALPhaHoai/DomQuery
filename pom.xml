@@ -85,4 +85,11 @@
         </dependency>
     </dependencies>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>DomQuery</name>
+            <url>https://maven.pkg.github.com/ALPhaHoai/DomQuery</url>
+        </repository>
+    </distributionManagement>
 </project>
