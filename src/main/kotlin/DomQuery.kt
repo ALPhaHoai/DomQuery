@@ -31,12 +31,15 @@ sealed class Combinator {
     object Descendant : Combinator() {
         override fun toString() = " "
     }
+
     object Child : Combinator() {
         override fun toString() = ">"
     }
+
     object Adjacent : Combinator() {
         override fun toString() = "+"
     }
+
     object Sibling : Combinator() {
         override fun toString() = "~"
     }
@@ -398,3 +401,41 @@ fun Element.matches(selector: SimpleSelector): Boolean {
     }
     return true
 }
+
+fun Node?.siblings(selector: String? = null): List<Node> {
+    if (this == null) return emptyList()
+    val parent = this.parentNode ?: return emptyList()
+    val children = parent.childNodes
+    return (0 until children.length)
+        .asSequence()
+        .map { children.item(it) }
+        .filter { it.nodeType == Node.ELEMENT_NODE && it != this }
+        .filter { selector == null || (it is Element && it.matches(parseSimpleSelector(selector))) }
+        .toList()
+}
+
+fun Node?.next(selector: String? = null): Node? {
+    if (this == null) return null
+    val nextElem = generateSequence(this.nextSibling) { it.nextSibling }
+        .firstOrNull { it.nodeType == Node.ELEMENT_NODE } ?: return null
+    return if (selector == null) nextElem
+    else if (nextElem is Element && nextElem.matches(parseSimpleSelector(selector))) nextElem
+    else null
+}
+
+fun Node?.prev(selector: String? = null): Node? {
+    if (this == null) return null
+    return generateSequence(this.previousSibling) { it.previousSibling }
+        .firstOrNull { it.nodeType == Node.ELEMENT_NODE }
+        ?.let { node ->
+            if (selector == null) node
+            else if (node is Element && node.matches(parseSimpleSelector(selector))) node
+            else null
+        }
+}
+
+fun Node?.parents(selector: String? = null): List<Node> =
+    generateSequence(this?.parentNode) { it.parentNode }
+        .filter { it.nodeType == Node.ELEMENT_NODE }
+        .filter { selector == null || (it is Element && it.matches(parseSimpleSelector(selector))) }
+        .toList()

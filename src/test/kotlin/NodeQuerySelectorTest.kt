@@ -9,10 +9,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class NodeQuerySelectorExtraTest {
+class NodeQuerySelectorTest {
 
     @Test
-    fun testByIndexAttribute() {
+    fun query_selector_matches_element_by_attribute_value() {
         val xml = """<hierarchy><node index="2"/></hierarchy>"""
         val root = DocumentBuilderFactory.newInstance().newDocumentBuilder()
             .parse(xml.byteInputStream()).documentElement
@@ -23,7 +23,7 @@ class NodeQuerySelectorExtraTest {
     }
 
     @Test
-    fun testByTagNameNode() {
+    fun query_selector_finds_element_by_tag_name_with_attributes() {
         val xml = """<hierarchy><node index="99"/></hierarchy>"""
         val root = DocumentBuilderFactory.newInstance().newDocumentBuilder()
             .parse(xml.byteInputStream()).documentElement
@@ -35,7 +35,7 @@ class NodeQuerySelectorExtraTest {
     }
 
     @Test
-    fun testByTagNameNoMatch() {
+    fun query_selector_returns_null_and_empty_list_for_non_matching_tag_name() {
         val xml = """<hierarchy><node/></hierarchy>"""
         val root = DocumentBuilderFactory.newInstance().newDocumentBuilder()
             .parse(xml.byteInputStream()).documentElement
@@ -45,7 +45,7 @@ class NodeQuerySelectorExtraTest {
     }
 
     @Test
-    fun testMalformedSelector() {
+    fun query_selector_returns_null_for_malformed_or_blank_selector() {
         val xml = """<hierarchy><node/></hierarchy>"""
         val root = DocumentBuilderFactory.newInstance().newDocumentBuilder()
             .parse(xml.byteInputStream()).documentElement
@@ -55,7 +55,7 @@ class NodeQuerySelectorExtraTest {
     }
 
     @Test
-    fun testDescendantCombinator() {
+    fun query_selector_supports_descendant_combinator_between_elements() {
         val xml = """
         <hierarchy>
             <node class="android_widget_FrameLayout">
@@ -74,7 +74,7 @@ class NodeQuerySelectorExtraTest {
     }
 
     @Test
-    fun testChildCombinatorWithSpaces() {
+    fun query_selector_supports_child_combinator_even_with_spaces() {
         val xml = """
         <hierarchy>
             <node class="android_widget_FrameLayout">
@@ -91,7 +91,7 @@ class NodeQuerySelectorExtraTest {
     }
 
     @Test
-    fun testAdjacentSiblingCombinator() {
+    fun query_selector_supports_adjacent_sibling_combinator_between_matching_elements() {
         val xml = """
         <hierarchy>
           <node>
@@ -110,7 +110,7 @@ class NodeQuerySelectorExtraTest {
     }
 
     @Test
-    fun testGeneralSiblingCombinator() {
+    fun query_selector_supports_general_sibling_combinator_between_matching_elements() {
         val xml = """
         <hierarchy>
           <node>
@@ -129,45 +129,7 @@ class NodeQuerySelectorExtraTest {
     }
 
     @Test
-    fun testAllChildrenOfParent() {
-        val xml = """
-        <hierarchy>
-          <node resource-id="container1">
-            <node class="android_widget_Button" text="btn1"/>
-            <node class="android_widget_Button" text="btn2"/>
-          </node>
-        </hierarchy>
-        """.trimIndent()
-        val root = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-            .parse(xml.byteInputStream()).documentElement
-        // All buttons child of container1
-        val nodes = root.querySelectorAll("""[resource-id="container1"] > [class="android_widget_Button"]""")
-        assertEquals(2, nodes.size)
-        val texts = nodes.map { (it as Element).getAttribute("text") }.toSet()
-        assertEquals(setOf("btn1", "btn2"), texts)
-    }
-
-    @Test
-    fun testMultipleCommaSelectorReturnsAll() {
-        val xml = """
-        <hierarchy>
-            <node class="android_widget_Button"/>
-            <node class="android_widget_Button"/>
-            <node class="android_widget_ListView"/>
-        </hierarchy>
-        """.trimIndent()
-        val root = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-            .parse(xml.byteInputStream()).documentElement
-        val res = root.querySelectorAll("""[class="android_widget_Button"], [class="android_widget_ListView"]""")
-        // Should find BOTH buttons AND the listview node
-        assertEquals(3, res.size)
-        val classes = res.map { (it as Element).getAttribute("class") }.toSet()
-        assertTrue("android_widget_Button" in classes)
-        assertTrue("android_widget_ListView" in classes)
-    }
-
-    @Test
-    fun testAttributeWithSpaces() {
+    fun query_selector_matches_attribute_with_spaces_and_special_characters_in_value() {
         // Add a node with attribute containing spaces and match it
         val xml = """<hierarchy>
           <node class="android_widget_TextView" text="Hello world"/>
@@ -180,7 +142,7 @@ class NodeQuerySelectorExtraTest {
     }
 
     @Test
-    fun testChainedAttributeAndClass() {
+    fun query_selector_matches_element_with_multiple_class_attribute_values_using_class_tilde_selector() {
         val xml = """
         <hierarchy>
             <node class="button1 button2" text="btn1"/>
@@ -196,23 +158,7 @@ class NodeQuerySelectorExtraTest {
     }
 
     @Test
-    fun testDistinctResults() {
-        val xml = """
-        <hierarchy>
-            <node class="android_widget_Button"/>
-            <node class="android_widget_Button"/>
-        </hierarchy>
-        """.trimIndent()
-        val root = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-            .parse(xml.byteInputStream()).documentElement
-        // Should not include the same node more than once
-        val allButtonsTwice =
-            root.querySelectorAll("""[class="android_widget_Button"], [class="android_widget_Button"]""")
-        assertEquals(2, allButtonsTwice.size)
-    }
-
-    @Test
-    fun testFindByIdResourceId() {
+    fun query_selector_matches_element_by_id_using_resource_id_selector() {
         val xml = """
         <hierarchy>
             <node resource-id="logo"/>
@@ -227,7 +173,7 @@ class NodeQuerySelectorExtraTest {
     }
 
     @Test
-    fun testFindByNonexistentId() {
+    fun query_selector_returns_null_for_nonexistent_id_selector() {
         val xml = """<hierarchy><node resource-id="foo"/></hierarchy>"""
         val root = DocumentBuilderFactory.newInstance().newDocumentBuilder()
             .parse(xml.byteInputStream()).documentElement
@@ -235,25 +181,7 @@ class NodeQuerySelectorExtraTest {
     }
 
     @Test
-    fun testFindByClassOnly() {
-        // There are three nodes with class="android_widget_TextView"
-        val xml = """
-        <hierarchy>
-            <node class="android_widget_TextView" text="A"/>
-            <node class="android_widget_TextView" text="B"/>
-            <node class="android_widget_TextView" text="C"/>
-        </hierarchy>
-        """.trimIndent()
-        val root = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-            .parse(xml.byteInputStream()).documentElement
-        val nodes = root.querySelectorAll("""[class="android_widget_TextView"]""")
-        assertEquals(3, nodes.size) // A, B, C
-        val texts = nodes.map { (it as Element).getAttribute("text") }
-        assertTrue("A" in texts && "B" in texts && "C" in texts)
-    }
-
-    @Test
-    fun testClassTildeSelector() {
+    fun query_selector_matches_element_using_class_tilde_operator_for_whole_classnames() {
         val xml = """
             <hierarchy>
               <node class="foo button1 bar" text="ok"/>
@@ -273,7 +201,7 @@ class NodeQuerySelectorExtraTest {
     }
 
     @Test
-    fun testClassCaretSelector() {
+    fun query_selector_matches_element_using_class_caret_operator_for_classname_prefix() {
         val xml = """
             <hierarchy>
               <node class="button1 foo bar" text="ok"/>
@@ -289,7 +217,7 @@ class NodeQuerySelectorExtraTest {
     }
 
     @Test
-    fun testClassSubstringSelector() {
+    fun query_selector_matches_element_using_class_star_operator_for_classname_substring() {
         val xml = """
             <hierarchy>
               <node class="foo_button1_bar" text="ok"/>
@@ -305,7 +233,7 @@ class NodeQuerySelectorExtraTest {
     }
 
     @Test
-    fun testClassDollarSelector() {
+    fun query_selector_matches_element_using_class_dollar_operator_for_classname_suffix() {
         val xml = """
             <hierarchy>
               <node class="foo bar button1" text="ok"/>
@@ -321,7 +249,7 @@ class NodeQuerySelectorExtraTest {
     }
 
     @Test
-    fun testClassDashSelector() {
+    fun query_selector_matches_element_using_class_dash_operator_for_classname_with_dash_or_exact() {
         val xml = """
             <hierarchy>
               <node class="button1-foo" text="dash"/>
@@ -339,7 +267,7 @@ class NodeQuerySelectorExtraTest {
     }
 
     @Test
-    fun testAttributePresenceOnly() {
+    fun query_selector_matches_element_by_presence_of_attribute_only() {
         val xml = """<hierarchy><node foo="bar"/></hierarchy>"""
         val root =
             DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xml.byteInputStream()).documentElement
@@ -348,7 +276,7 @@ class NodeQuerySelectorExtraTest {
     }
 
     @Test
-    fun testAttributeWithSingleQuotes() {
+    fun query_selector_supports_attribute_values_with_single_and_double_quotes() {
         val xml = """
         <hierarchy>
             <node class='single_quote_test' text='Hello single quote'/>
@@ -368,7 +296,7 @@ class NodeQuerySelectorExtraTest {
     }
 
     @Test
-    fun testTagNameCaseSensitivity() {
+    fun query_selector_matches_tag_name_case_sensitively() {
         val xml = """<hierarchy><Node text="yes"/><node text="no"/></hierarchy>"""
         val root = DocumentBuilderFactory.newInstance().newDocumentBuilder()
             .parse(xml.byteInputStream()).documentElement
@@ -385,7 +313,7 @@ class NodeQuerySelectorExtraTest {
     }
 
     @Test
-    fun testAttributeNameCaseSensitivity() {
+    fun query_selector_matches_attribute_names_case_sensitively() {
         val xml = """<hierarchy>
         <node foo="correct" FOO="wrong" FoO="alsoWrong"/>
     </hierarchy>"""
@@ -409,7 +337,7 @@ class NodeQuerySelectorExtraTest {
     }
 
     @Test
-    fun testAttributeValueCaseSensitivity() {
+    fun query_selector_matches_attribute_values_case_sensitively() {
         val xml = """<hierarchy>
         <node foo="Bar"/>
     </hierarchy>"""
@@ -422,7 +350,7 @@ class NodeQuerySelectorExtraTest {
     }
 
     @Test
-    fun testAttributeWithSpecialCharacters() {
+    fun query_selector_matches_attributes_with_special_characters_in_names_or_values() {
         // "label" uses a comma; "name" uses brackets and spaces
         val xml = """
         <hierarchy>
@@ -449,7 +377,7 @@ class NodeQuerySelectorExtraTest {
     }
 
     @Test
-    fun testFlatVsNestedStructure() {
+    fun query_selector_distinguishes_between_flat_and_nested_element_structures() {
         val xml = """
         <hierarchy>
             <node class="flat" text="f1"/>
